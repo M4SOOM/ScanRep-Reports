@@ -1,0 +1,18 @@
+name: Microsoft Security DevOps (Reusable)
+
+on:
+  workflow_call:
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Microsoft Security DevOps
+        uses: microsoft/security-devops-action@v1
+        with:
+          tools: codeql,credscan,trivy
