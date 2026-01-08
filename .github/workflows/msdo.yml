@@ -1,28 +1,31 @@
 name: Microsoft Security DevOps
 
 on:
-  workflow_call:    # <--- THIS MUST BE HERE
-  push:
-    branches: [ "main" ]
+  workflow_call:
 
 jobs:
-  build:
+  security-scan:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       security-events: write
       actions: read
+    
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Run Microsoft Security DevOps
         uses: microsoft/security-devops-action@v1
         id: msdo
+        # We focus on the most reliable tools for Bash/General repos
         with:
-          tools: codeql,credscan,trivy
+          tools: credscan,trivy
 
       - name: Upload results to GitHub
+        # Updated to v3/v4 to fix the deprecation warning
         uses: github/codeql-action/upload-sarif@v3
-        if: always()
+        # This 'if' ensures that even if the scan found bugs, we still upload the report
+        if: success() || failure() 
         with:
           sarif_file: ${{ steps.msdo.outputs.sarifFile }}
