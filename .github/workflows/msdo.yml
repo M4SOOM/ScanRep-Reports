@@ -18,16 +18,21 @@ jobs:
       - name: Run Microsoft Security DevOps
         uses: microsoft/security-devops-action@v1
         id: msdo
-        # CRITICAL: This allows the next step to run even if bugs are found
-        continue-on-error: true 
+        continue-on-error: true
         with:
-          # Best for Bash: CredScan (secrets) and Trivy (vulnerabilities)
-          tools: credscan,trivy
+          # A comprehensive list of best-in-class security tools:
+          # 1. bandit: Python SAST (finds os.system calls)
+          # 2. binskim: Scans binary files for vulnerabilities
+          # 3. checkov: Infrastructure-as-Code (IaC) scanner (Terraform/Docker)
+          # 4. eslint: JavaScript/TypeScript security patterns
+          # 5. terrascan: Multi-cloud IaC security (AWS/Azure/GCP)
+          # 6. trivy: Container and Dependency vulnerability scanner
+          # 7. templateanalyzer: Deep scan for ARM/Bicep templates
+          # 8. antimalware: Scans build artifacts for viruses
+          tools: bandit,binskim,checkov,eslint,terrascan,trivy,templateanalyzer,antimalware
 
       - name: Upload results to GitHub
-        # Updated to v4 for 2026 compliance
         uses: github/codeql-action/upload-sarif@v4
-        # CRITICAL: This runs even if the scanner found vulnerabilities
         if: always() 
         with:
           sarif_file: ${{ steps.msdo.outputs.sarifFile }}
