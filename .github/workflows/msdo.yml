@@ -1,14 +1,15 @@
-name: Microsoft Security DevOps
+name: Microsoft Security DevOps (Central)
 
 on:
   workflow_call:
 
 jobs:
   security-scan:
+    name: Security Scan
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      security-events: write
+      security-events: write 
       actions: read
     
     steps:
@@ -18,16 +19,16 @@ jobs:
       - name: Run Microsoft Security DevOps
         uses: microsoft/security-devops-action@v1
         id: msdo
-        # This prevents the workflow from stopping if a bug is found
+        # This prevents the workflow from stopping before results are uploaded
         continue-on-error: true 
         with:
-          # Best for Bash: CredScan (secrets) and Trivy (packages/containers)
+          # Best tools for scripts and general code
           tools: credscan,trivy
 
-      - name: Upload results to GitHub
-        # Updated to v4 to clear the deprecation warning
+      - name: Upload results to GitHub Security Tab
+        # Updated to v4 for 2026 compliance
         uses: github/codeql-action/upload-sarif@v4
-        # We run this even if MSDO found vulnerabilities
+        # This step MUST run even if vulnerabilities were found
         if: always() 
         with:
           sarif_file: ${{ steps.msdo.outputs.sarifFile }}
