@@ -1,0 +1,15 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  call-security-logic:
+    uses: M4SOOM/ScanRep-Reports/.github/workflows/msdo.yml@main
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
