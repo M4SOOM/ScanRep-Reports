@@ -1,30 +1,28 @@
-name: Microsoft Security DevOps (Central)
+name: Microsoft Security DevOps
 
 on:
-  workflow_call: # This makes the workflow "Callable" by other repos
+  workflow_call:    # <--- THIS MUST BE HERE
+  push:
+    branches: [ "main" ]
 
 jobs:
-  security-scan:
-    name: Security Scan
+  build:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      security-events: write # Required to post results to the Security tab
-      id-token: write
-    
+      security-events: write
+      actions: read
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Run Microsoft Security DevOps
         uses: microsoft/security-devops-action@v1
         id: msdo
         with:
-          # Best-in-class tools: SAST, Secrets, and Containers/Dependencies
           tools: codeql,credscan,trivy
 
-      - name: Upload results to GitHub Security Tab
+      - name: Upload results to GitHub
         uses: github/codeql-action/upload-sarif@v3
-        if: always() # Ensure results upload even if vulnerabilities are found
+        if: always()
         with:
           sarif_file: ${{ steps.msdo.outputs.sarifFile }}
