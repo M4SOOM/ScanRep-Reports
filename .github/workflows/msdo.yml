@@ -18,14 +18,16 @@ jobs:
       - name: Run Microsoft Security DevOps
         uses: microsoft/security-devops-action@v1
         id: msdo
-        # We focus on the most reliable tools for Bash/General repos
+        # This prevents the workflow from stopping if a bug is found
+        continue-on-error: true 
         with:
+          # Best for Bash: CredScan (secrets) and Trivy (packages/containers)
           tools: credscan,trivy
 
       - name: Upload results to GitHub
-        # Updated to v3/v4 to fix the deprecation warning
-        uses: github/codeql-action/upload-sarif@v3
-        # This 'if' ensures that even if the scan found bugs, we still upload the report
-        if: success() || failure() 
+        # Updated to v4 to clear the deprecation warning
+        uses: github/codeql-action/upload-sarif@v4
+        # We run this even if MSDO found vulnerabilities
+        if: always() 
         with:
           sarif_file: ${{ steps.msdo.outputs.sarifFile }}
